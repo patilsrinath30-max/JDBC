@@ -1,78 +1,52 @@
-package com.example.studentapi;
+package com.example.studentapi.controller;
 
+import com.example.studentapi.model.Student;
+import com.example.studentapi.service.StudentService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/students")
+@RequestMapping("/api/students")
+@CrossOrigin(origins = "http://localhost:5173") // allow the React dev server to call this API
 public class StudentController {
 
-    private final StudentRepository repository;
+    @Autowired
+    private StudentService studentService;
 
-    public StudentController(StudentRepository repository) {
-        this.repository = repository;
-    }
-
-    // GET ALL
-    @GetMapping
-    public List<Student> getAllStudents() {
-        return repository.findAll();
-    }
-
-    // GET BY ID
-    @GetMapping("/{id}")
-    public Student getStudent(@PathVariable int id) {
-
-        Optional<Student> student = repository.findById(id);
-
-        return student.orElse(null);
-    }
-
-    // ADD
+    // CREATE -> POST /api/students
     @PostMapping
-    public String addStudent(@RequestBody Student student) {
-
-        repository.save(student);
-        return "Student Added Successfully";
+    public ResponseEntity<Student> addStudent(@Valid @RequestBody Student student) {
+        Student saved = studentService.addStudent(student);
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    // UPDATE
+    // READ all -> GET /api/students
+    @GetMapping
+    public ResponseEntity<List<Student>> getAllStudents() {
+        return ResponseEntity.ok(studentService.getAllStudents());
+    }
+
+    // READ one -> GET /api/students/5
+    @GetMapping("/{id}")
+    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
+        return ResponseEntity.ok(studentService.getStudentById(id));
+    }
+
+    // UPDATE -> PUT /api/students/5
     @PutMapping("/{id}")
-    public String updateStudent(@PathVariable int id,
-                                @RequestBody Student updatedStudent) {
-
-        Optional<Student> optionalStudent = repository.findById(id);
-
-        if (optionalStudent.isPresent()) {
-
-            Student student = optionalStudent.get();
-
-            student.setName(updatedStudent.getName());
-            student.setBranch(updatedStudent.getBranch());
-            student.setAge(updatedStudent.getAge());
-
-            repository.save(student);
-
-            return "Student Updated Successfully";
-        }
-
-        return "Student Not Found";
+    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @Valid @RequestBody Student student) {
+        return ResponseEntity.ok(studentService.updateStudent(id, student));
     }
 
-    // DELETE
+    // DELETE -> DELETE /api/students/5
     @DeleteMapping("/{id}")
-    public String deleteStudent(@PathVariable int id) {
-
-        if (repository.existsById(id)) {
-
-            repository.deleteById(id);
-
-            return "Student Deleted Successfully";
-        }
-
-        return "Student Not Found";
+    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.noContent().build();
     }
-
 }
