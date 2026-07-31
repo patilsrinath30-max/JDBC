@@ -1,10 +1,8 @@
-package com.example.studentapi;
+package com.example.studentapi.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "students")
@@ -12,26 +10,37 @@ public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
+    @NotBlank(message = "Name is required")
     private String name;
-    private String branch;
-    private int age;
 
+    @NotBlank(message = "Roll number is required")
+    @Column(name = "roll_no")
+    private String rollNo;
+
+    @Email(message = "Email should be valid")
+    private String email;
+
+    private String course;
+
+    // JPA requires a no-args constructor
     public Student() {
     }
 
-    public Student(String name, String branch, int age) {
+    public Student(String name, String rollNo, String email, String course) {
         this.name = name;
-        this.branch = branch;
-        this.age = age;
+        this.rollNo = rollNo;
+        this.email = email;
+        this.course = course;
     }
 
-    public int getId() {
+    // Getters and setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -43,20 +52,27 @@ public class Student {
         this.name = name;
     }
 
-    public String getBranch() {
-        return branch;
+    public String getRollNo() {
+        return rollNo;
     }
 
-    public void setBranch(String branch) {
-        this.branch = branch;
+    public void setRollNo(String rollNo) {
+        this.rollNo = rollNo;
     }
 
-    public int getAge() {
-        return age;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
+    public String getCourse() {
+        return course;
+    }
+
+    public void setCourse(String course) {
+        this.course = course;
+    }
 }
